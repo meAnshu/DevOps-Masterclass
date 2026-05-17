@@ -32,7 +32,7 @@ jobs:
           cache-dependency-path: docker/app1-hello/node/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Check app entry point exists
         run: |
