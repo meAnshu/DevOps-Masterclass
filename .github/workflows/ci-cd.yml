@@ -13,12 +13,12 @@ env:
   IMAGE_TAG: latest
 
 jobs:
-  # ──────────────────────────────────────────────
-  # JOB 1: Build & Test
-  # ──────────────────────────────────────────────
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docker/app1-hello/node
 
     steps:
       - name: Checkout code
@@ -29,6 +29,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: docker/app1-hello/node/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -41,17 +42,6 @@ jobs:
           fi
           echo "✅ app.js found"
 
-      - name: Verify app starts without errors
-        run: |
-          timeout 10s node app.js &
-          sleep 5
-          curl --fail http://localhost:3000 || echo "⚠️ No response on port 3000 (app may need env vars)"
-          kill %1 || true
-
-  # ──────────────────────────────────────────────
-  # JOB 2: Docker Build & Push
-  # Runs only on push to main (not on PRs)
-  # ──────────────────────────────────────────────
   docker-build-push:
     name: Docker Build & Push
     runs-on: ubuntu-latest
@@ -65,14 +55,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -82,18 +64,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          target: prod
+          context: docker/app1-hello/node
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Move Docker cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      - name: Print image details
-        run: |
-          echo "✅ Image pushed: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
