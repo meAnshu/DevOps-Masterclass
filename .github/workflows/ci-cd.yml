@@ -1,12 +1,17 @@
+
 name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'docker/app1-hello/node/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'docker/app1-hello/node/**'
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/hello-app-node
@@ -28,7 +33,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache-dependency-path: docker/app1-hello/node/package-lock.json
 
       - name: Install dependencies
         run: npm install
@@ -66,3 +70,4 @@ jobs:
           context: docker/app1-hello/node
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+EOF

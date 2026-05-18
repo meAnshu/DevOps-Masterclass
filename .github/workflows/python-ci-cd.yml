@@ -1,22 +1,23 @@
+
 name: Python CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'docker/app1-hello/python/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'docker/app1-hello/python/**'
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/hello-app-python
   IMAGE_TAG: latest
-  APP_DIR: docker/app1-hello/python
 
 jobs:
-  # ──────────────────────────────────────────────
-  # JOB 1: Build & Test
-  # ──────────────────────────────────────────────
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
@@ -52,10 +53,6 @@ jobs:
       - name: Run tests
         run: pytest test_main.py -v
 
-  # ──────────────────────────────────────────────
-  # JOB 2: Docker Build & Push
-  # Runs only on push to main (not on PRs)
-  # ──────────────────────────────────────────────
   docker-build-push:
     name: Docker Build & Push
     runs-on: ubuntu-latest
@@ -100,3 +97,4 @@ jobs:
 
       - name: Print image details
         run: echo "✅ Image pushed: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+EOF
