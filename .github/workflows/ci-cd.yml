@@ -1,4 +1,3 @@
-
 name: CI/CD Pipeline
 
 on:
@@ -24,7 +23,6 @@ jobs:
     defaults:
       run:
         working-directory: docker/app1-hello/node
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,17 +38,16 @@ jobs:
       - name: Check app entry point exists
         run: |
           if [ ! -f "app.js" ]; then
-            echo "❌ app.js not found!"
+            echo "app.js not found!"
             exit 1
           fi
-          echo "✅ app.js found"
+          echo "app.js found"
 
   docker-build-push:
     name: Docker Build & Push
     runs-on: ubuntu-latest
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -70,4 +67,3 @@ jobs:
           context: docker/app1-hello/node
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-EOF
