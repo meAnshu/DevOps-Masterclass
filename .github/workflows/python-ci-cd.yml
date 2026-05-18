@@ -96,5 +96,5 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Print image details
-        run: echo "✅ Image pushed: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+        run: echo "Image pushed: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
 EOF
